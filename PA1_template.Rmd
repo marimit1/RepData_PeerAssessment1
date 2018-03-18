@@ -1,25 +1,183 @@
+
+```{r }
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Coursera: Reproducible Research"
+author: "M"
+date: "18 March 2018"
+output: html_document
+keep_md: true
 ---
 
-
-## Loading and preprocessing the data
-
-
-
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r setup dir, include = FALSE}
+knitr::opts_knit$set(root.dir = "C:/Users/marianna/R_specialization/RepData_PeerAssessment1")
+```
 
 
-
-## Imputing missing values
-
+# Peer-graded Assignment (Course Project 1)
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+### Loading and preprocessing the data
+
+1. Load data
+
+load libraries
+```{r libraries}
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+```
+unzip data set
+```{r unzip}
+unzip(zipfile = "activity.zip",exdir = "activity")
+```
+reset working directory
+```{r reset_dir}
+knitr::opts_knit$set(root.dir = "./activity")
+```
+
+read data 
+```{r read}
+activity <- read.table("activity.csv", sep = ",", header = TRUE)
+```
+
+2. Process data
+
+check class of variables
+```{r check_structure}
+head(activity)
+str(activity)
+```
+transform date variable
+```{r transform_date}
+Sys.setlocale("LC_TIME", "English")
+activity$date <- ymd(activity$date)
+```
+
+
+### What is the mean total number of steps taken per day ?  (ignore the missing values)
+
+1. Calculate the total number of steps taken per day
+```{r calculate_total_steps_per_day}
+total_steps_day <- activity %>% na.omit() %>% group_by(date) %>% summarise(total_steps = sum(steps))
+head(total_steps_day)
+```
+
+2. Make a histogram of the total number of steps taken each day
+```{r histogram}
+qplot(total_steps, data = total_steps_day, geom = "histogram", binwidth = 2000, fill = I("blue")) +
+    labs(title = "Total number of steps per day - Histogram", x = "Total steps per day", y = "Frequency")
+```
+
+3. Calculate and report the mean and median of the total number of steps taken per day
+```{r mean_median}
+mean_steps_day <- mean(total_steps_day$total_steps)
+mean_steps_day
+median_steps_day <- median(total_steps_day$total_steps)
+median_steps_day
+```
+The mean of the total number of steps taken per day is `r mean_steps_day` and the median is `r median_steps_day`.
+
+### What is the average daily activity pattern ?
+
+1. Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+
+```{r calculate_average_steps_all_days}
+average_steps_all_days <- activity %>% na.omit() %>% group_by(interval) %>% summarise(average_steps = mean(steps))
+```
+```{r time_series_plot}
+qplot(interval, average_steps, data = average_steps_all_days, geom = "line", 
+      col = I("blue")) +
+    labs(title = "Average number of steps across all days - Time-series plot", x = "5-minute interval", y = "Average number of steps")
+```
+
+2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+```{r interval_max_steps}
+interval_max_steps <- average_steps_all_days$interval[which.max(average_steps_all_days$average_steps)]
+interval_max_steps
+```
+The `r interval_max_steps`th 5-minute interval contains the maximum number of steps.
+
+### Imputing missing values
+
+The presence of missing days may introduce bias into some calculations or summaries of the data.
+
+1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+```{r missing_data}
+missing_data <- sum(is.na(activity))
+missing_data
+```
+The total number of missing values in the dataset is `missing_data`.
+
+2. Devise a strategy for filling in all of the missing values in the dataset. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+I am using the mean for each 5-minute interval across all days in order to fill the missing values of the steps in.
+```{r impute_missing_steps}
+impute <- function(i, activity, average_steps_all_days) {
+    if (is.na(activity$steps[i])) {
+      activity$steps[i] = average_steps_all_days$average_steps[which(average_steps_all_days$interval == activity$interval[i])]  
+    }
+    activity$steps[i]
+}
+```
+
+3. Create a new dataset that is equal to the original dataset but with the missing data filled 
+```{r activity_imputed}
+steps_impute <- sapply(1:nrow(activity), impute, activity = activity, average_steps_all_days = average_steps_all_days)
+activity_imputed <- cbind(activity[, 2:3], steps_impute)
+head(activity_imputed)
+```
+
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r calculate_total_steps_per_day_imputed}
+total_steps_day_imputed <- activity_imputed %>% group_by(date) %>% summarise(total_steps = sum(steps_impute))
+head(total_steps_day_imputed)
+```
+
+```{r histogram_imputed}
+qplot(total_steps, data = total_steps_day_imputed, geom = "histogram", binwidth = 2000, fill = I("blue")) +
+    labs(title = "Total number of steps per day (imputed missing values) - Histogram", x = "Total steps per day", y = "Frequency")
+```
+
+```{r mean_median_imputed}
+mean_steps_day_imputed <- mean(total_steps_day_imputed$total_steps)
+mean_steps_day_imputed
+median_steps_day_imputed <- median(total_steps_day_imputed$total_steps)
+median_steps_day_imputed
+```
+The mean of the total number of steps taken per day is `r mean_steps_day_imputed` and the median is `r median_steps_day_imputed`.
+
+Compared to the first part of this assignment with the missing values excluded, the mean number of the total steps taken per day is the same, whereas the median is a bit higher (increase (10766.19 - 10765) / 10765 = 0.011 %).
+Imputing missing data from the average of each 5-minute interval caused more observations equal to the mean to be included and the variation among them to decrease, so that the median is now equal to the mean.
+
+
+### Are there differences in activity patterns between weekdays and weekends ?
+
+For this part the weekdays() function may be of some help here. Use the dataset with the filled-in missing values for this part.
+
+1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+```{r make_day_type}
+activity_imputed$day_type <- as.factor(ifelse(weekdays(activity_imputed$date) == "Saturday" |
+                                   weekdays(activity_imputed$date) =="Sunday", 
+                                   "weekend", "weekday"))
+head(activity_imputed)
+``` 
+ 
+    
+2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
+
+```{r calculate_average_steps_all_days_imputed}
+average_steps_all_days_imputed <- activity_imputed %>% group_by(day_type, interval) %>% summarise(average_steps = mean(steps_impute))
+```
+
+```{r panel_plot}
+qplot(interval, average_steps, data = average_steps_all_days_imputed, geom = "line", 
+      col = I("blue"), facets = day_type ~ .) +
+    labs(title = "Average number of steps across all weekdays or weekends - Time-series plot", x = "5-minute interval", y = "Average number of steps")
+```
+```
+
