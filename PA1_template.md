@@ -313,5 +313,9 @@ qplot(interval, average_steps, data = average_steps_all_days_imputed, geom = "li
 ```
 
 ![plot of chunk panel_plot](figure/panel_plot-1.png)
+
+
+## save to PA1_template.md
+knit2html(spin("PA1_template.Rmd", knit = FALSE))
 ```
 
