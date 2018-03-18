@@ -1,11 +1,10 @@
-
-```{r }
 ---
 title: "Coursera: Reproducible Research"
 author: "M"
 date: "18 March 2018"
-output: html_document
-keep_md: true
+output: 
+  html_document: 
+    keep_md: true 
 ---
 
 ```{r setup, include = FALSE}
@@ -180,8 +179,4 @@ qplot(interval, average_steps, data = average_steps_all_days_imputed, geom = "li
     labs(title = "Average number of steps across all weekdays or weekends - Time-series plot", x = "5-minute interval", y = "Average number of steps")
 ```
 
-
-## save to PA1_template.md
-knit2html(spin("PA1_template.Rmd", knit = FALSE))
-```
 

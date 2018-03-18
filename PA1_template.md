@@ -1,21 +1,12 @@
-
-
-```r
 ---
 title: "Coursera: Reproducible Research"
 author: "M"
 date: "18 March 2018"
-output: html_document
-keep_md: true
+output: 
+  html_document: 
+    keep_md: true 
 ---
-```
 
-```
-## Error: <text>:9:0: unexpected end of input
-## 7: ---
-## 8: 
-##   ^
-```
 
 
 
@@ -122,7 +113,7 @@ qplot(total_steps, data = total_steps_day, geom = "histogram", binwidth = 2000, 
     labs(title = "Total number of steps per day - Histogram", x = "Total steps per day", y = "Frequency")
 ```
 
-![plot of chunk histogram](figure/histogram-1.png)
+![](PA1_template_files/figure-html/histogram-1.png)<!-- -->
 
 3. Calculate and report the mean and median of the total number of steps taken per day
 
@@ -143,7 +134,7 @@ median_steps_day
 ```
 ## [1] 10765
 ```
-The mean of the total number of steps taken per day is 1.0766189 &times; 10<sup>4</sup> and the median is 10765.
+The mean of the total number of steps taken per day is 1.0766189\times 10^{4} and the median is 10765.
 
 ### What is the average daily activity pattern ?
 
@@ -160,7 +151,7 @@ qplot(interval, average_steps, data = average_steps_all_days, geom = "line",
     labs(title = "Average number of steps across all days - Time-series plot", x = "5-minute interval", y = "Average number of steps")
 ```
 
-![plot of chunk time_series_plot](figure/time_series_plot-1.png)
+![](PA1_template_files/figure-html/time_series_plot-1.png)<!-- -->
 
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -247,7 +238,7 @@ qplot(total_steps, data = total_steps_day_imputed, geom = "histogram", binwidth 
     labs(title = "Total number of steps per day (imputed missing values) - Histogram", x = "Total steps per day", y = "Frequency")
 ```
 
-![plot of chunk histogram_imputed](figure/histogram_imputed-1.png)
+![](PA1_template_files/figure-html/histogram_imputed-1.png)<!-- -->
 
 
 ```r
@@ -267,7 +258,7 @@ median_steps_day_imputed
 ```
 ## [1] 10766.19
 ```
-The mean of the total number of steps taken per day is 1.0766189 &times; 10<sup>4</sup> and the median is 1.0766189 &times; 10<sup>4</sup>.
+The mean of the total number of steps taken per day is 1.0766189\times 10^{4} and the median is 1.0766189\times 10^{4}.
 
 Compared to the first part of this assignment with the missing values excluded, the mean number of the total steps taken per day is the same, whereas the median is a bit higher (increase (10766.19 - 10765) / 10765 = 0.011 %).
 Imputing missing data from the average of each 5-minute interval caused more observations equal to the mean to be included and the variation among them to decrease, so that the median is now equal to the mean.
@@ -312,10 +303,6 @@ qplot(interval, average_steps, data = average_steps_all_days_imputed, geom = "li
     labs(title = "Average number of steps across all weekdays or weekends - Time-series plot", x = "5-minute interval", y = "Average number of steps")
 ```
 
-![plot of chunk panel_plot](figure/panel_plot-1.png)
+![](PA1_template_files/figure-html/panel_plot-1.png)<!-- -->
 
-
-## save to PA1_template.md
-knit2html(spin("PA1_template.Rmd", knit = FALSE))
-```
 
